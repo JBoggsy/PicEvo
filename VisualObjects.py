@@ -1,13 +1,14 @@
 from random import gauss, randint, choice
-from math import floor, sqrt
+import numpy as np
+from math import floor
 
 class RandRGB(object):
     """
     Object used to generate a random RGB 3-tuple. Generates each number
     for Red, Green, and Blue in a range 0-256 by using a skewed
     gaussian random number generation. This object provides a mu and
-    sigma for generating each number randomly. A single RandRGB makes
-    up a pixel in
+    sigma for generating each number randomly. A Gene object is made up
+    of a matrix of RandRGB.
     """
     def __init__(self, r_mu=128, r_sig=16,
                  g_mu=128, g_sig=16,
@@ -21,19 +22,31 @@ class RandRGB(object):
 
     @property
     def gauss_vector(self):
+        """
+        :return: A vector containing the mu and sigma for each color
+         to use when called random.gauss.
+        """
         return (self.r_mu, self.r_sig,
                 self.g_mu, self.g_sig,
                 self.b_mu, self.b_sig)
 
     @property
     def rgb_vector(self):
+        """
+        :return: a vector of a red, green, and blue values between 0 and
+         256.
+        """
         red_val = int(round(gauss(self.r_mu, self.r_sig))) % 256
         grn_val = int(round(gauss(self.g_mu, self.g_sig))) % 256
         blu_val = int(round(gauss(self.b_mu, self.b_sig))) % 256
-        return (red_val, grn_val, blu_val)
+        return red_val, grn_val, blu_val
 
     @property
     def rgb_string(self):
+        """
+        :return: A string representation of a random color generated
+          from by random.gauss and the mu/sigma of each color.
+        """
         rgb_vec = self.rgb_vector
         rgb_hex_string = '#'
         for x in range(3):
@@ -42,12 +55,30 @@ class RandRGB(object):
         return rgb_hex_string
 
     def load_vector(self, temp_vec_form):
+        """
+        Recreate an RandRGB from a vector containing its mus and sigmas
+        :param temp_vec_form: Vector with color mus and sigmas
+        :return: True if successful
+        """
         self.r_mu = int(temp_vec_form[0])
         self.r_sig = int(temp_vec_form[1])
         self.g_mu = int(temp_vec_form[2])
         self.g_sig = int(temp_vec_form[3])
         self.b_mu = int(temp_vec_form[4])
         self.b_sig = int(temp_vec_form[5])
+
+    def mutate(self):
+        """
+        Adjust the mu of each color by -64 through +64 and the sigma
+        of each color by a random amount -16 through +16, including 0.
+        :return: True if successful
+        """
+        self.r_mu += randint(-64, 64)
+        self.g_mu += randint(-64, 64)
+        self.b_mu += randint(-64, 64)
+        self.r_sig += randint(-16, 16)
+        self.g_sig += randint(-16, 16)
+        self.b_sig += randint(-16, 16)
 
 
 class Gene(object):
@@ -56,10 +87,37 @@ class Gene(object):
     in a Picture object. Any RandRGB pixel in a Picture is a member of
     exactly one gene. The size of a gene can vary, but is always 1, 2,
     5, or 10% of the Picture. A gene is used to abstract the mutation,
-    therefore the Gene class has a function to mutate it.
+    therefore the Gene class has a function to mutate it. A genetic code
+    is made up of a matrix of genes. A gene is never generated in an
+    original way, rather Genes are instantiated from already existing
+    Pictures.
     """
-    def __init__(self):
-        pass
+    def __init__(self, pixel_matrix=None):
+        """
+        Create a gene from a matrix of RandRGB pixels in a Picture.
+        :param pixel_matrix: A matrix of pixels from the Picture.
+        Should be a Numpy ndarray
+        """
+        assert isinstance(pixel_matrix, np.ndarray)
+        self.matrix = pixel_matrix
+        self.size = len(pixel_matrix)
+
+    def mutate(self):
+        """
+        Mutate this gene randomly. Note that this method CHANGES THE GENE.
+        :return: True if successful.
+        """
+        for row in range(self.size):
+            for col in range(self.size):
+                self.matrix[row, col].mutate()
+
+    def __getitem__(self, item):
+        """
+        Get a specific pixel in the gene
+        :param item: coordinate of the pixel
+        :return: A RandRGB pixel
+        """
+        return self.matrix[item]
 
 
 class Picture(object):
@@ -67,7 +125,7 @@ class Picture(object):
     An object to contain a grid of Rand_RGB objects which generates a
     random but somewhat similar image.
     """
-    def __init__(self, parent1=None, parent2=None, grid_size=400):
+    def __init__(self, parent1=None, parent2=None, grid_size=100):
         """
         Create a new picture object either through mutation other pictures
         or freshly generating it.
@@ -139,11 +197,12 @@ class Picture(object):
         one gene.
 
         Mutating the gene means going through each pixel in the gene and
-        adjusting the mu of each color by -64 through + 64 and the sigma
+        adjusting the mu of each color by -64 through +64 and the sigma
         of each color by a random amount -16 through +16, including 0.
 
         :param parent: Picture to be mutated
         """
+        assert isinstance(parent,Picture)
         # choose a gene size
         gene_size = choice((0.01, 0.02, 0.05, 0.1))*self.grid_size
         # get the genes from the parent
@@ -154,13 +213,13 @@ class Picture(object):
         """
         Generate a grid of Rand_RGB cells fresh.
         """
+        pre_matrix = []
         for y in range(self.grid_size):
-            row = []
             for x in range(self.grid_size):
-                row.append(RandRGB(r_mu=randint(0, 256), r_sig=randint(1, 10),
+                pre_matrix.append(RandRGB(r_mu=randint(0, 256), r_sig=randint(1, 10),
                                    g_mu=randint(0, 256), g_sig=randint(1, 10),
                                    b_mu=randint(0, 256), b_sig=randint(1, 10)))
-            self.grid.append(row)
+        self.grid = np.reshape(pre_matrix, (self.grid_size, self.grid_size))
 
     def render_picture(self):
         """
@@ -180,49 +239,43 @@ class Picture(object):
         grid of RandRGB into genes of gene_size x gene_size pixels. The
         genetic code is a matrix of these genes.
         :param gene_size: Size of the side of a gene
-        :return: A matrix of genes
+        :return: A matrix of genes as a numpy ndarray
         """
-        gene_size = int(gene_size)
-        gene_num = int(self.grid_size/gene_size)
+        assert self.grid_size % gene_size == 0, "Gene size doesn't divide grid evenly"
+        assert isinstance(gene_size, int), "gene_size needs to be an int"
+        gene_num = int(self.grid_size / gene_size)
         genetic_code = []
         # iterate through the Picture to the top-left pixel of each gene
         for row in range(gene_num):
-            gc_row = [] # row in the genetic code
             for col in range(gene_num):
-                # iterate through each pixel in each gene
                 # get the top-left coordinates
-                gene_head = [row*gene_size, col*gene_size]
-                # create the gene array
-                gene=[]
-                for y in range(gene_size):
-                    # create a new row
-                    gene_row = []
-                    for x in range(gene_size):
-                        # add each pixel to the new row
-                        pxl_loc = [gene_head[0]+y, gene_head[1]+x]
-                        gene_row.append(self.grid[pxl_loc[0]][pxl_loc[1]])
-                    gene.append(gene_row)
-                gc_row.append(gene)
-            genetic_code.append(gc_row)
-        return genetic_code
+                head_row = row * gene_size
+                head_col = col * gene_size
+                # get the bottom right coordinates
+                tail_row = head_row + gene_size
+                tail_col = head_col + gene_size
+                gene = Gene(self.grid[head_row:tail_row,
+                                      head_col:tail_col]
+                            )
+                genetic_code.append(gene)
+        return np.reshape(genetic_code, (gene_num, gene_num))
 
-    def build_from_genes(self, genes):
+    def build_from_genes(self, genetic_code):
         """
         Create the grid of this picture from a genetic code.
-        :param genes: List of genes
+        :param genes: List of Genes as a 2D numpy ndarray
         :return: None
         """
-        gene_size = len(genes[0][0][0]) # dimension of a gene
-        new_grid = [] # blank grid for filling
+        gene_size = genetic_code[0, 0].size
+        new_grid = []  # blank grid for filling
         for row in range(self.grid_size):
-            new_row = [] # blank row for filling
             for col in range(self.grid_size):
                 # following lines find the next RandRGB pixel
-                gene_row = int(floor(row/gene_size)) # which gene
-                pixel_row = row % (gene_size-1) # row of the pixel in the gene
-                gene_col = int(floor(col/gene_size))
-                pixel_col = col % (gene_size-1)
-                pixel = genes[gene_row][gene_col][pixel_row][pixel_col]
-                new_row.append(pixel)
-            new_grid.append(new_row)
-        self.grid = new_grid
+                gene_row = floor(int(row/gene_size))
+                gene_col = floor(int(col/gene_size))
+                pix_row = row % gene_size
+                pix_col = col % gene_size
+                target_gene = genetic_code[gene_row, gene_col]
+                pixel = target_gene[pix_row, pix_col]
+                new_grid.append(pixel)
+        self.grid = np.reshape(new_grid, (self.grid_size, self.grid_size))
