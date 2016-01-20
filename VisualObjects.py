@@ -126,6 +126,9 @@ class Picture(object):
     An object to contain a grid of Rand_RGB objects which generates a
     random but somewhat similar image.
     """
+
+    NEXT_PIC_ID = 0
+
     def __init__(self, parent1=None, parent2=None, grid_size=100):
         """
         Create a new picture object either through mutation other pictures
@@ -135,6 +138,8 @@ class Picture(object):
         :param parent2: Parent to mate with parent
         :param grid_size: Size of the picture produced
         """
+        self.pic_id = Picture.NEXT_PIC_ID
+        Picture.NEXT_PIC_ID += 1
         self.grid = []
         self.grid_size = grid_size
         if parent2:

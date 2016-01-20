@@ -1,3 +1,5 @@
+import cv2
+
 from Evolver import Evolver
 
 from Tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
@@ -41,7 +43,7 @@ class EvoViewer(Frame):
         strtButton = Button(self, text="Start", command=self.start_evo)
         strtButton.pack(side=RIGHT)
 
-    def display_pic(self, pic):
+    def display_pic_tk(self, pic):
         """
         Fills the screen with pixels generated from a picture.
         :param pic: Picture to display a version of
@@ -60,6 +62,21 @@ class EvoViewer(Frame):
                 except:
                     print(cell)
         self.parent.update_idletasks()
+
+    def display_pic(self, pic):
+        """
+        Display a Picture using OpenCV methods
+        :param pic: The Picture object to be displayed
+        """
+        img_matrix = pic.render_picture()
+        cv2.imshow('Picture', img_matrix)
+        k = cv2.waitKey(0) & 0xFF
+        if k == 27:         # wait for ESC key to exit
+            cv2.destroyAllWindows()
+        elif k == ord('s'): # wait for 's' key to save and exit
+            img_name = 'img_{}.png'.format(pic.pic_id)
+            cv2.imwrite(img_name, img_matrix)
+            cv2.destroyAllWindows()
 
     def start_evo(self):
         """
@@ -146,12 +163,18 @@ class PictureViewer(Frame):
             y += 2
             x=0
             for cell in row:
+                rgb_hex_string = '#'
+                for val in cell:
+                    rgb_hex_string += str(hex(int(val))).ljust(4, '0')[2:]
                 x += 2
-                #print cell
                 try:
-                    rects.append(self.canvas.create_rectangle(x, y, x-2, y-2, fill=cell, width=0))
+                    rects.append(self.canvas.create_rectangle(x, y, x-2, y-2,
+                                                              fill=rgb_hex_string,
+                                                              width=0)
+
+                                 )
                 except:
-                    print(cell)
+                    print(rgb_hex_string)
         self.parent.update_idletasks()
 
     def start_viewing(self):
