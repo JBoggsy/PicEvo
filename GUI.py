@@ -69,14 +69,14 @@ class EvoViewer(Frame):
         :param pic: The Picture object to be displayed
         """
         img_matrix = pic.render_picture()
-        cv2.imshow('Picture', img_matrix)
+        img_name = 'img_{}.png'.format(pic.pic_id)
+        cv2.imwrite(img_name, img_matrix)
+        img = cv2.imread(img_name)
+        cv2.imshow('Picture', img)
         k = cv2.waitKey(0) & 0xFF
         if k == 27:         # wait for ESC key to exit
             cv2.destroyAllWindows()
-        elif k == ord('s'): # wait for 's' key to save and exit
-            img_name = 'img_{}.png'.format(pic.pic_id)
-            cv2.imwrite(img_name, img_matrix)
-            cv2.destroyAllWindows()
+
 
     def start_evo(self):
         """

@@ -108,4 +108,4 @@ crashlytics-build.properties
 
 # Personal Ignores
 PicEvoVenv
-*.png
+/Pictures
