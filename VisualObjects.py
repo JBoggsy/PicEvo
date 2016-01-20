@@ -40,7 +40,7 @@ class RandRGB(object):
         red_val = int(round(gauss(self.r_mu, self.r_sig))) % 256
         grn_val = int(round(gauss(self.g_mu, self.g_sig))) % 256
         blu_val = int(round(gauss(self.b_mu, self.b_sig))) % 256
-        return red_val, grn_val, blu_val
+        return [red_val, grn_val, blu_val]
 
     @property
     def rgb_string(self):
@@ -232,14 +232,16 @@ class Picture(object):
 
     def render_picture(self):
         """
-        Return a grid of hex strings which represent color at each point.
+        Return a grid of 3-tuples which represent color at each point:
+        (B, G, R)
         """
         ret_grid = []
         for row in self.grid:
-            ret_grid_row = []
             for cell in row:
-                ret_grid_row.append(cell.rgb_string)
-            ret_grid.append(ret_grid_row)
+                assert isinstance(cell, RandRGB), "grid is not made of RandRGBs"
+                rgb_array = cell.rgb_vector
+                ret_grid.append(rgb_array)
+        ret_grid = np.reshape(ret_grid, (self.grid_size, self.grid_size, 3))
         return ret_grid
 
     def get_genes(self, gene_size):
