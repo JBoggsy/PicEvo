@@ -1,3 +1,4 @@
+import cv2
 from VisualObjects import Picture
 
 POPULATION_SIZE = 10
@@ -44,3 +45,14 @@ class Evolver(object):
                 population.
         """
         return self.population[index]
+
+    def compare_pics(self, evo_pic, tgt_pic):
+        """
+        Compare two Pictures using Mean Squared Error and Structural
+        Similarity Indexing methods. Return a number which represents the
+        SIMILARITY between the two, which means a higher numbers is more
+        of a match, and therefore better.
+        :param evo_pic: Picture object generated during evolution
+        :param tgt_pic: Target Picture to compare evolved pics to
+        :return: A float 0-10, where higher is better
+        """

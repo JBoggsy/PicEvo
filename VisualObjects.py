@@ -1,3 +1,4 @@
+import cv2
 from random import gauss, randint, choice
 import numpy as np
 from math import floor
@@ -202,12 +203,20 @@ class Picture(object):
 
         :param parent: Picture to be mutated
         """
-        assert isinstance(parent,Picture)
+        assert isinstance(parent, Picture)
         # choose a gene size
         gene_size = choice((0.01, 0.02, 0.05, 0.1))*self.grid_size
         # get the genes from the parent
         p_genes = parent.get_genes(gene_size)
-        #for
+        new_genetic_code = []
+        for row in p_genes:
+            for gene in row:
+                if randint(0,1):
+                    gene.mutate()
+                new_genetic_code.append(gene)
+        new_genetic_code = np.reshape(new_genetic_code, (self.grid_size,
+                                                         self.grid_size))
+        self.build_from_genes(new_genetic_code)
 
     def generate_no_parents(self):
         """

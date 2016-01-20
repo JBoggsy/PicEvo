@@ -1,7 +1,7 @@
 from Evolver import Evolver
 
-#from Tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
-from tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
+from Tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
+#from tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
 
 class EvoViewer(Frame):
     """
