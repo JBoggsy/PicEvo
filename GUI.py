@@ -185,7 +185,7 @@ class PictureViewer(Frame):
         img_matrix = pic.render_picture()
         img_name = 'img_{}.png'.format(pic.pic_id)
         cv2.imwrite(img_name, img_matrix)
-        img = cv2.imread(img_name)
+        img = cv2.imread(img_name, 1)
         cv2.imshow('Picture', img)
         k = cv2.waitKey(0) & 0xFF
         if k == 27:         # wait for ESC key to exit
