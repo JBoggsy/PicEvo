@@ -16,20 +16,22 @@ class Evolver(object):
     parents in the top 1/5.
     """
 
-    def __init__(self, grid_size):
+    def __init__(self, target_pic="target_pic.png"):
         """
         Create the initial population of pictures randomly.
         :param grid_size: Number of pixels on a side of the picture. It's
                           important that this number be evenly divisible
                           by 100, 50, 20, and 10. A multiple of 100 is
                           ideal.
+        :param target_pic: Filename of the target picture. Defaults to
+                           "target_pic.png" in the PicEvo folder.
         """
         self.population = []
-        self.grid_size = grid_size
-
+        self.target_pic = cv2.imread(target_pic)
+        self.grid_size = len(self.target_pic)
         for i in range(POPULATION_SIZE):
             print(i)
-            self.population.append(Picture(grid_size=grid_size))
+            self.population.append(Picture(grid_size=self.grid_size))
 
     @property
     def pop_size(self):
@@ -46,13 +48,19 @@ class Evolver(object):
         """
         return self.population[index]
 
-    def compare_pics(self, evo_pic, tgt_pic):
+    def compare_pics(self, evo_pic):
         """
         Compare two Pictures using Mean Squared Error and Structural
         Similarity Indexing methods. Return a number which represents the
         SIMILARITY between the two, which means a higher numbers is more
         of a match, and therefore better.
         :param evo_pic: Picture object generated during evolution
-        :param tgt_pic: Target Picture to compare evolved pics to
         :return: A float 0-10, where higher is better
         """
+        assert isinstance(evo_pic, Picture), "evo_pic is not a Picture"
+        assert evo_pic.grid_size == self.grid_size, "evo_pic is not the right size"
+
+        test_pic = evo_pic.render_picture()  # test_pic is for testing ops
+
+        # convert picture matrices to HSV
+        # HSV_target_pic = cv2.cvtColor(self.target_pic

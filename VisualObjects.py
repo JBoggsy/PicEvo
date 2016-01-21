@@ -173,7 +173,7 @@ class Picture(object):
         """
 
         # choose a gene size
-        gene_size = choice((0.01, 0.02, 0.05, 0.1))*self.grid_size
+        gene_size = int(choice((0.01, 0.02, 0.05, 0.1))*self.grid_size)
         # get the genes from each parent
         p1_genes = parent1.get_genes(gene_size)
         p2_genes = parent2.get_genes(gene_size)
@@ -188,6 +188,8 @@ class Picture(object):
                 selected_gene = choice(parent_gene_pairs[gene_index])
                 child_genes.append(selected_gene)
         # build child's grid from genes
+        child_genes = np.reshape(child_genes, (self.grid_size,
+                                               self.grid_size))
         self.build_from_genes(child_genes)
 
     def generate_mutate_parent(self, parent):

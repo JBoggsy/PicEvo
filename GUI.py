@@ -69,10 +69,10 @@ class EvoViewer(Frame):
         :param pic: The Picture object to be displayed
         """
         img_matrix = pic.render_picture()
-        img_name = 'img_{}.png'.format(pic.pic_id)
-        cv2.imwrite(img_name, img_matrix)
-        img = cv2.imread(img_name)
-        cv2.imshow('Picture', img)
+        #img_name = 'img_{}.png'.format(pic.pic_id)
+        #cv2.imwrite(img_name, img_matrix)
+        #img = cv2.imread(img_name)
+        cv2.imshow('Picture', img_matrix)
         k = cv2.waitKey(0) & 0xFF
         if k == 27:         # wait for ESC key to exit
             cv2.destroyAllWindows()
@@ -148,10 +148,10 @@ class PictureViewer(Frame):
         prevButton.pack(side=RIGHT)
         refrButton = Button(self, text="Refresh", command=self.refr_view)
         refrButton.pack(side=RIGHT)
-        strtButton = Button(self, text="Start", command=self.start_viewing())
+        strtButton = Button(self, text="Start", command=self.start_viewing)
         strtButton.pack(side=RIGHT)
 
-    def display_pic(self, pic):
+    def display_pic_tk(self, pic):
         """
         Fills the screen with pixels generated from a picture.
         :param pic: Picture to display a version of
@@ -176,6 +176,20 @@ class PictureViewer(Frame):
                 except:
                     print(rgb_hex_string)
         self.parent.update_idletasks()
+
+    def display_pic(self, pic):
+        """
+        Display a Picture using OpenCV methods
+        :param pic: The Picture object to be displayed
+        """
+        img_matrix = pic.render_picture()
+        img_name = 'img_{}.png'.format(pic.pic_id)
+        cv2.imwrite(img_name, img_matrix)
+        img = cv2.imread(img_name)
+        cv2.imshow('Picture', img)
+        k = cv2.waitKey(0) & 0xFF
+        if k == 27:         # wait for ESC key to exit
+            cv2.destroyAllWindows()
 
     def start_viewing(self):
         """
@@ -220,7 +234,7 @@ def main():
     ... Come on, you know what this is.
     """
     root = Tk()
-    pic_evo = Evolver(grid_size=300)
+    pic_evo = Evolver()
     app = EvoViewer(root, pic_evo)
     root.mainloop()
 
