@@ -69,9 +69,9 @@ class EvoViewer(Frame):
         :param pic: The Picture object to be displayed
         """
         img_matrix = pic.render_picture()
-        #img_name = 'img_{}.png'.format(pic.pic_id)
-        #cv2.imwrite(img_name, img_matrix)
-        #img = cv2.imread(img_name)
+        # img_name = 'img_{}.png'.format(pic.pic_id)
+        # cv2.imwrite(img_name, img_matrix)
+        # img = cv2.imread(img_name)
         cv2.imshow('Picture', img_matrix)
         k = cv2.waitKey(0) & 0xFF
         if k == 27:         # wait for ESC key to exit

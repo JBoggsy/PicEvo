@@ -40,6 +40,16 @@ class Evolver(object):
         """
         return POPULATION_SIZE
 
+    @property
+    def target_hists(self):
+        target_hists = []
+        colors = ('b', 'g', 'r')
+        for i, col in enumerate(colors):
+            t_hist = cv2.calcHist([self.target_pic], [i],
+                                  None, [256], [0, 256])
+            target_hists.append(t_hist)
+        return target_hists
+
     def get_pic_at(self, index):
         """
         :param index: Number of the population member to be examined.
@@ -60,7 +70,19 @@ class Evolver(object):
         assert isinstance(evo_pic, Picture), "evo_pic is not a Picture"
         assert evo_pic.grid_size == self.grid_size, "evo_pic is not the right size"
 
-        test_pic = evo_pic.render_picture()  # test_pic is for testing ops
+        evo_matrix = evo_pic.render_picture()  # evo_matrix is for testing ops
+        evo_hists = []  # list of histograms [B, G, R]
 
-        # convert picture matrices to HSV
-        # HSV_target_pic = cv2.cvtColor(self.target_pic
+        # get the evo_pic histograms
+        colors = ('b', 'g', 'r')
+        for i, col in enumerate(colors):
+            t_hist = cv2.calcHist([evo_matrix], [i], None, [256], [0, 256])
+            evo_hists.append(t_hist)
+        # shorten the target hists
+        tgt_hists = self.target_hists
+        # get the compareHist results
+        hist_comps = []  # list of the results fo compHist
+        for i, col in enumerate(colors):
+            t_hist_comp = cv2.compareHist(evo_hists[i], tgt_hists[i], 2)
+            hist_comps.append(t_hist_comp)
+        return sum(hist_comps)

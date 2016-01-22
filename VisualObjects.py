@@ -40,7 +40,7 @@ class RandRGB(object):
         red_val = int(round(gauss(self.r_mu, self.r_sig))) % 256
         grn_val = int(round(gauss(self.g_mu, self.g_sig))) % 256
         blu_val = int(round(gauss(self.b_mu, self.b_sig))) % 256
-        return [red_val, grn_val, blu_val]
+        return np.asarray([red_val, grn_val, blu_val],np.uint8)
 
     @property
     def rgb_string(self):
