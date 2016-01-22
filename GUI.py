@@ -1,7 +1,8 @@
 import cv2
+from numpy import ndarray
 
 from Evolver import Evolver
-
+from VisualObjects import Picture
 from Tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
 #from tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
 
@@ -122,12 +123,20 @@ class PictureViewer(Frame):
         :param pic_list: list of picturess of length > 0
         """
         Frame.__init__(self, parent)
-
-        self.pic_list = pic_list
-        self.grid_size = pic_list[0].grid_size
-        self.parent = parent
-        self.pic_index = 0
-        self.Init_UI()
+        if isinstance(pic_list[0], Picture):
+            self.pic_list = pic_list
+            self.grid_size = pic_list[0].grid_size
+            self.parent = parent
+            self.pic_index = 0
+            self.pre_rendered = False
+            self.Init_UI()
+        elif isinstance(pic_list[0], ndarray):
+            self.pic_list = pic_list
+            self.grid_size = len(pic_list[0])
+            self.parent = parent
+            self.pic_index = 0
+            self.pre_rendered = True
+            self.Init_UI()
 
 
     def Init_UI(self):
@@ -182,10 +191,14 @@ class PictureViewer(Frame):
         Display a Picture using OpenCV methods
         :param pic: The Picture object to be displayed
         """
-        img_matrix = pic.render_picture()
-        img_name = 'img_{}.png'.format(pic.pic_id)
-        cv2.imwrite(img_name, img_matrix)
-        img = cv2.imread(img_name, 1)
+        if not self.pre_rendered:
+            img_matrix = pic.render_picture()
+            img_name = 'img_{}.png'.format(pic.pic_id)
+            cv2.imwrite(img_name, img_matrix)
+            img = cv2.imread(img_name, 1)
+
+        else:
+            img = pic
         cv2.imshow('Picture', img)
         k = cv2.waitKey(0) & 0xFF
         if k == 27:         # wait for ESC key to exit

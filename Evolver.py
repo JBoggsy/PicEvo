@@ -40,16 +40,6 @@ class Evolver(object):
         """
         return POPULATION_SIZE
 
-    @property
-    def target_hists(self):
-        target_hists = []
-        colors = ('b', 'g', 'r')
-        for i, col in enumerate(colors):
-            t_hist = cv2.calcHist([self.target_pic], [i],
-                                  None, [256], [0, 256])
-            target_hists.append(t_hist)
-        return target_hists
-
     def get_pic_at(self, index):
         """
         :param index: Number of the population member to be examined.
@@ -60,29 +50,16 @@ class Evolver(object):
 
     def compare_pics(self, evo_pic):
         """
-        Compare two Pictures using Mean Squared Error and Structural
-        Similarity Indexing methods. Return a number which represents the
-        SIMILARITY between the two, which means a higher numbers is more
-        of a match, and therefore better.
+        Compare two Pictures by subtracting the evo pic from the target
+        picture and taking the sum of the resultant matrix. The smaller the
+        result, the closer the two images are. Should work... right?
         :param evo_pic: Picture object generated during evolution
-        :return: A float 0-10, where higher is better
+        :return: An integer where lower is better
         """
         assert isinstance(evo_pic, Picture), "evo_pic is not a Picture"
         assert evo_pic.grid_size == self.grid_size, "evo_pic is not the right size"
 
         evo_matrix = evo_pic.render_picture()  # evo_matrix is for testing ops
-        evo_hists = []  # list of histograms [B, G, R]
-
-        # get the evo_pic histograms
-        colors = ('b', 'g', 'r')
-        for i, col in enumerate(colors):
-            t_hist = cv2.calcHist([evo_matrix], [i], None, [256], [0, 256])
-            evo_hists.append(t_hist)
-        # shorten the target hists
-        tgt_hists = self.target_hists
-        # get the compareHist results
-        hist_comps = []  # list of the results fo compHist
-        for i, col in enumerate(colors):
-            t_hist_comp = cv2.compareHist(evo_hists[i], tgt_hists[i], 2)
-            hist_comps.append(t_hist_comp)
-        return sum(hist_comps)
+        result_matrix = evo_matrix - self.target_pic
+        result = result_matrix.sum()
+        return result
