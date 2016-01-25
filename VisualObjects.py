@@ -129,7 +129,7 @@ class Picture(object):
 
     NEXT_PIC_ID = 0
 
-    def __init__(self, parent1=None, parent2=None, grid_size=100):
+    def __init__(self, parent1=None, parent2=None, grid_size=None):
         """
         Create a new picture object either through mutation other pictures
         or freshly generating it.
@@ -141,12 +141,14 @@ class Picture(object):
         self.pic_id = Picture.NEXT_PIC_ID
         Picture.NEXT_PIC_ID += 1
         self.grid = []
-        self.grid_size = grid_size
         if parent2:
+            self.grid_size = parent1.grid_size
             self.generate_merge_parents(parent1, parent2)
         elif parent1:
+            self.grid_size = parent1.grid_size
             self.generate_mutate_parent(parent1)
         else:
+            self.grid_size = grid_size
             self.generate_no_parents()
 
     def generate_merge_parents(self, parent1, parent2):
@@ -215,14 +217,15 @@ class Picture(object):
         gene_size = choice((0.01, 0.02, 0.05, 0.1))*self.grid_size
         # get the genes from the parent
         p_genes = parent.get_genes(gene_size)
+        gene_code_size = len(p_genes)
         new_genetic_code = []
         for row in p_genes:
             for gene in row:
                 if randint(0,1):
                     gene.mutate()
                 new_genetic_code.append(gene)
-        new_genetic_code = np.reshape(new_genetic_code, (self.grid_size,
-                                                         self.grid_size))
+        new_genetic_code = np.reshape(new_genetic_code, (gene_code_size,
+                                                         gene_code_size))
         self.build_from_genes(new_genetic_code)
 
     def generate_no_parents(self):
@@ -260,7 +263,7 @@ class Picture(object):
         :return: A matrix of genes as a numpy ndarray
         """
         assert self.grid_size % gene_size == 0, "Gene size doesn't divide grid evenly"
-        assert isinstance(gene_size, int), "gene_size needs to be an int"
+        gene_size = int(gene_size)
         gene_num = int(self.grid_size / gene_size)
         genetic_code = []
         # iterate through the Picture to the top-left pixel of each gene

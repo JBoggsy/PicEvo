@@ -1,14 +1,8 @@
-from threading import Thread
-from VisualObjects import Picture
-from GUI import EvoViewer, main, display_pic
+from Evolver import Evolver
 
 if __name__ == '__main__':
-     main()
-     # t1 = Picture(grid_size=400)
-     # t2 = Picture(grid_size=400)
-     # t3 = Picture(grid_size=400)
-     # t1.generate_no_parents()
-     # t2.generate_no_parents()
-     # t3.generate_merge_parents(t1, t2)
-     # pic_list = [t1, t2, t3]
-     # display_pic(pic_list)
+     testEvo = Evolver(target_pic="target_pic_sm.png")
+     print("Pop 0: " + str(len(testEvo.population)))
+     for x in range(3):
+        testEvo.iterate_evo()
+        print("Pop " + str(x+1) + ": " + str(len(testEvo.population)))
