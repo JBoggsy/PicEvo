@@ -1,7 +1,7 @@
 import cv2
 from numpy import ndarray
 
-from Evolver import Evolver
+#from Evolver import Evolver
 from VisualObjects import Picture
 from Tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button
 #from tkinter import Tk, RIGHT, BOTH, RAISED, Canvas, Frame, Button

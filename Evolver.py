@@ -2,10 +2,11 @@ import operator
 
 import cv2
 from VisualObjects import Picture
+from GUI import display_pic
 
-SURVIVAL_SIZE = 2
-CHILD_AMOUNT = SURVIVAL_SIZE**2  #(4)
-POPULATION_SIZE = 2*CHILD_AMOUNT + SURVIVAL_SIZE #(10)
+SURVIVAL_SIZE = 5
+CHILD_AMOUNT = SURVIVAL_SIZE**2  #(25)
+POPULATION_SIZE = 2*CHILD_AMOUNT + SURVIVAL_SIZE #(55)
 
 class Evolver(object):
     """
@@ -37,6 +38,7 @@ class Evolver(object):
             print(i)
             new_pic = Picture(grid_size=self.grid_size)
             self.population[new_pic.pic_id] = new_pic
+        self.iteration = 0
 
     @property
     def pop_size(self):
@@ -69,7 +71,7 @@ class Evolver(object):
         result = result_matrix.sum()
         return result
 
-    def iterate_evo(self):
+    def iterate_evo(self, iter_show_step):
         """
         Complete one iteration of the evolutionary process by comparing
         every Picture in the population with the target picture and selecting
@@ -82,6 +84,7 @@ class Evolver(object):
         :return: True if successful
         """
         # get fitness values for every picture in the population
+        self.iteration += 1
         fitness_vals = {}
         for pic_id in self.population:
             test_pic = self.population[pic_id]
@@ -94,6 +97,10 @@ class Evolver(object):
         surviving_ids = [pair[0] for pair in sorted_fit_vals[:SURVIVAL_SIZE]]
         surviving_pics = [(surv_id, self.population[surv_id])
                           for surv_id in surviving_ids]
+        if self.iteration % iter_show_step == 0:
+            for pic_id in surviving_ids:
+                img_name = 'img_{}.png'.format(pic_id)
+                cv2.imwrite(img_name, self.population[pic_id])
         new_population = dict(surviving_pics)
         new_pop_holder = new_population.copy()
 
@@ -108,5 +115,3 @@ class Evolver(object):
                 new_population[new_pic_mutate.pic_id] = new_pic_mutate
 
         self.population = new_population
-
-
