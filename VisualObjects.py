@@ -11,9 +11,9 @@ class RandRGB(object):
     sigma for generating each number randomly. A Gene object is made up
     of a matrix of RandRGB.
     """
-    def __init__(self, r_mu=128, r_sig=16,
-                 g_mu=128, g_sig=16,
-                 b_mu=128, b_sig=16):
+    def __init__(self, r_mu=128, r_sig=4,
+                 g_mu=128, g_sig=4,
+                 b_mu=128, b_sig=4):
         self.r_mu = r_mu
         self.r_sig = r_sig
         self.g_mu = g_mu
@@ -74,12 +74,12 @@ class RandRGB(object):
         of each color by a random amount -16 through +16, including 0.
         :return: True if successful
         """
-        self.r_mu += randint(-64, 64)
-        self.g_mu += randint(-64, 64)
-        self.b_mu += randint(-64, 64)
-        self.r_sig += randint(-16, 16)
-        self.g_sig += randint(-16, 16)
-        self.b_sig += randint(-16, 16)
+        self.r_mu += randint(-16, 16)
+        self.g_mu += randint(-16, 16)
+        self.b_mu += randint(-16, 16)
+        self.r_sig += randint(-4, 4)
+        self.g_sig += randint(-4, 4)
+        self.b_sig += randint(-4, 4)
 
 
 class Gene(object):
