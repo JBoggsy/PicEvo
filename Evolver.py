@@ -4,9 +4,9 @@ import cv2
 from VisualObjects import Picture
 from GUI import display_pic
 
-SURVIVAL_SIZE = 5
-CHILD_AMOUNT = SURVIVAL_SIZE**2  #(25)
-POPULATION_SIZE = 2*CHILD_AMOUNT + SURVIVAL_SIZE #(55)
+SURVIVAL_SIZE = 2
+CHILD_AMOUNT = SURVIVAL_SIZE**2
+POPULATION_SIZE = 2*CHILD_AMOUNT + SURVIVAL_SIZE #(10)
 
 class Evolver(object):
     """
@@ -81,7 +81,7 @@ class Evolver(object):
         1/2 will be generated from mutating one parent. See the docs of
         Picture.generate_merge_parents() and Picture.generate_mutate_parent().
         Where x = SURVIVAL_SIZE
-        :return: True if successful
+        :return: Lowest fitness value
         """
         # get fitness values for every picture in the population
         self.iteration += 1
@@ -100,7 +100,9 @@ class Evolver(object):
         if self.iteration % iter_show_step == 0:
             for pic_id in surviving_ids:
                 img_name = 'img_{}.png'.format(pic_id)
-                cv2.imwrite(img_name, self.population[pic_id])
+                cv2.imwrite(img_name,
+                            self.population[pic_id].render_picture()
+                            )
         new_population = dict(surviving_pics)
         new_pop_holder = new_population.copy()
 
@@ -115,3 +117,4 @@ class Evolver(object):
                 new_population[new_pic_mutate.pic_id] = new_pic_mutate
 
         self.population = new_population
+        return sorted_fit_vals[0]
